@@ -1,0 +1,96 @@
+{% extends 'main/base.html' %}
+{% block title %} Add Reservation {% endblock %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="container-fluid">
+    <div class="card shadow p-3 mb-5 mt-5 bg-white">
+        <div class="card-body">
+            {% if reservation.checkout %}
+            <h3 class="text-success">RESERVATION COMPLETE</h3>
+            {% elif rescheduled %}
+            <h3>RESCHEDULE RESERVATION:</h3>
+            {% else %}
+            <h3>RESERVATION DETAILS:</h3>
+            {% endif %}
+            <hr>
+            <div class="row p-3">
+                <div class="col">
+                    <h4 class="text-primary">{{hotel.name}}</h4>
+                    <p>{{hotel.description}}</p>
+                    <p class="text-secondary fw-bold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt" viewBox="0 0 16 16">
+                            <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
+                            <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                        </svg>
+                        {{hotel.address}}
+                    </p>
+                    <p class="text-primary fw-bold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tag" viewBox="0 0 16 16">
+                            <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0"/>
+                            <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586 7 7L13.586 9l-7-7H2z"/>
+                          </svg>
+                        ${{hotel.price}} per night
+                    </p>
+        
+                    <form method="POST" class="fw-bold">
+                        {% csrf_token %}
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar2-week" viewBox="0 0 16 16">
+                                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/>
+                                    <path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5zM11 7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-5 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/>
+                                  </svg>
+                            </span>
+                            {% if reservation.checkout %}
+                            <fieldset disabled>
+                                <input id="datepicker" class="form-control" placeholder="Current Schedule: {{reservation.schedule|date:'Y-m-d'}}" name="schedule" autocomplete="off">
+                            </fieldset>
+                            {% elif rescheduled %}
+                            <input id="datepicker" class="form-control" placeholder="Current Schedule: {{reservation.schedule|date:'Y-m-d'}}" name="schedule" autocomplete="off">
+                            {% else %}
+                            <input id="datepicker" class="form-control" placeholder="Select Schedule" name="schedule" autocomplete="off">
+                            {% endif %}
+                        </div>
+                        <div class="row justify-content-between gap-lg-5">
+                            {% now "Y-m-d" as current_date %}
+                            {% if reservation.schedule|date:'Y-m-d' == current_date and reservation.paid and reservation.checkout == False %}
+                            <a href="{% url 'checkout' reservation.id %}" class="btn btn-primary mt-2 col">Checkout</button>
+                            {% elif reservation.schedule|date:'Y-m-d' == current_date and reservation.checkout == True %}
+                            <a href="#" class="btn btn-secondary disabled mt-2 col">Checkout</a>
+                            {% elif rescheduled and reservation.checkout == False and reservation.checkout == True %}
+                            <button type="submit" class="btn btn-primary mt-2 col">Reschedule</button>
+                            {% elif rescheduled and reservation.checkout == True %}
+                            <button type="submit" class="btn btn-secondary disabled mt-2 col">Reschedule</button>
+                            {% else %}
+                            <button type="submit" class="btn btn-primary mt-2 col">Make Reservation</button>
+                            {% endif %}
+
+                            
+                            {% if reservation.paid %}
+                            <a href="#" class="btn btn-secondary disabled mt-2 col">Paid</a>
+                            {% else %}
+                            <a href='{% url "pay_now" reservation.id %}' class="btn btn-success mt-2 col">Pay Now</a>
+                            {% endif %}
+                        </div>
+                        
+                    </form>
+                </div>
+                <div class="col">
+                    <img class="rounded" src="/media/{{hotel.img_url}}" alt="" height="80%">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(function () {
+    $("#datepicker").datepicker({
+        format:'YYYY-MM-DD',
+    });
+    });
+</script>
+{% endblock %}

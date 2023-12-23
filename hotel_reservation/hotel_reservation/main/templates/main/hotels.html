@@ -1,0 +1,33 @@
+{% extends 'main/base.html' %}
+{% block title %} Hotels {% endblock %}
+
+
+{% block content %}
+<h1 class="m-3">Available Hotels</h1>
+{% for hotel in hotels %}
+<div class="card border-rounded m-3">
+    <div class="card-body bg-tertiary">
+        <div class="row gap-0">
+            <div class="col col-sm-4">
+                <img src="/media/{{hotel.img_url}}" alt="" height="250px" class="rounded">
+            </div>
+
+            <div class="col">
+                <h3 class="text-primary">{{hotel.name}}</h3>
+                <p>{{hotel.description}}</p>
+                <h6 class="fw-bold text-secondary">{{hotel.address}}</h6>
+                <p class="text-black" style="font-size: 14px;">Starts at <span class="text-primary fw-bold ">${{hotel.price}}/night</span></p>
+                {% if hotel.reservation_status == "AV" %}
+                <a href="{% url 'add_reservation' hotel.id %}" class="btn btn-primary">Available for Reservation</a>
+                {% elif hotel.reservation_status == "RS" %}
+                <a href="{% url 'add_reservation' hotel.id %}" class="btn btn-secondary disabled">Already Reserved</a>
+                {% endif %}
+            </div>
+
+        </div>
+      
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+
+{% block title %} Please Log In {% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="text-center m-4">
+            <h6>You are currently not logged in to view this page, login <a href="{% url 'login' %}" class="text-primary">Here</a></h6>
+        </div>
+        
+    </div>
+    
+{% endblock %}
